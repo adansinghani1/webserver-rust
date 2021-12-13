@@ -3,22 +3,22 @@ use std::io::prelude::*;
 use regex::Regex;
 use web_server::ThreadPool;
 fn main() {
-    let html_stub = fs::read_to_string("./src/html_stubs/index.html").unwrap();
-    let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
+    let template = fs::read_to_string("./src/templates/index.html").unwrap();
+    let listener = TcpListener::bind("127.0.0.1:8186").unwrap();
     let pool = ThreadPool::new(4);
 
     for stream in listener.incoming().take(10) {
         let stream = stream.unwrap();
-        let html = String::from(&html_stub[..]);
+        let html = String::from(&template[..]);
         pool.execute(|| {
             handle_conection(stream, html);
         });
     }
 }
 
-fn handle_conection(mut stream: TcpStream, html_stub: String) {
+fn handle_conection(mut stream: TcpStream, template: String) {
     let mut buffer = [0; 512];
-    let mut html = String::from(html_stub);
+    let mut html = String::from(template);
     let re_content = Regex::new(r"#CONTENT#").unwrap();
     let re_title = Regex::new(r"#TITLE#").unwrap();
     let re_status = Regex::new(r"#STATUS#").unwrap();
